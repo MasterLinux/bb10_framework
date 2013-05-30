@@ -12,6 +12,7 @@
 #include <QString>
 #include <QMap>
 #include <QMapIterator>
+#include <QStringBuilder>
 
 namespace Network {
 
@@ -19,7 +20,7 @@ enum ContentType { JSON, XML, Text };
 
 enum Encoding { UTF8, ISO_8851_1 };
 
-class Request {
+class Request : public QObject {
 	Q_OBJECT
 
 public:
@@ -56,8 +57,10 @@ public:
 
 private:
 	bool isStarted;
-	QString cacheFilename;
-	QMap<QString, QString> parameter;
+	QString *cacheFilename;
+	QMap<QString, QString> *parameter;
+	QMap<QString, QString> *header;
+	QMap<QString, QString> *body;
 
 	/**
 	 * Deserializes the response.
@@ -71,9 +74,9 @@ private:
 	 * @param encoding Required encoding
 	 * @param value Value to encode
 	 */
-	void encode(Encoding encoding, QString* value);
+	QString encode(Encoding encoding, QString value);
 
-	QString buildURL(QString baseUrl, QString path, QMap<QString, QString> parameter);
+	QString buildURL(QString baseUrl, QString path, QMap<QString, QString> *parameter, Encoding encoding);
 };
 
 };
