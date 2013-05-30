@@ -10,8 +10,14 @@
 
 #include <QObject>
 #include <QString>
+#include <QMap>
+#include <QMapIterator>
 
 namespace Network {
+
+enum ContentType { JSON, XML, Text };
+
+enum Encoding { UTF8, ISO_8851_1 };
 
 class Request {
 	Q_OBJECT
@@ -40,12 +46,34 @@ public:
 
 	void setEncoding(Encoding encoding);
 
+	void setContentType(ContentType contentType);
+
+	/**
+	 * Clears the cached response
+	 * of this request.
+	 */
 	void clearCache();
 
 private:
 	bool isStarted;
 	QString cacheFilename;
+	QMap<QString, QString> parameter;
 
+	/**
+	 * Deserializes the response.
+	 * @param response The received response
+	 * @param contentType Type of the response, which is necessary to select the required deserializer
+	 */
+	void deserialize(QString response, ContentType contentType); //TODO change return type
+
+	/**
+	 * Encodes a value with a specific encoding.
+	 * @param encoding Required encoding
+	 * @param value Value to encode
+	 */
+	void encode(Encoding encoding, QString* value);
+
+	QString buildURL(QString baseUrl, QString path, QMap<QString, QString> parameter);
 };
 
 };
