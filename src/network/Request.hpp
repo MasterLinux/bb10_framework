@@ -13,6 +13,7 @@
 #include <QMap>
 #include <QMapIterator>
 #include <QStringBuilder>
+#include <QByteArray>
 
 namespace Network {
 
@@ -49,6 +50,10 @@ public:
 
 	void setContentType(ContentType contentType);
 
+	void setBaseUrl(QString host);
+
+	void setPath(QString path);
+
 	/**
 	 * Clears the cached response
 	 * of this request.
@@ -58,6 +63,7 @@ public:
 private:
 	bool isStarted;
 	QString *cacheFilename;
+	QString *baseUrl, *path;
 	QMap<QString, QString> *parameter;
 	QMap<QString, QString> *header;
 	QMap<QString, QString> *body;
@@ -76,7 +82,7 @@ private:
 	 */
 	QString encode(Encoding encoding, QString value);
 
-	QString buildURL(QString baseUrl, QString path, QMap<QString, QString> *parameter, Encoding encoding);
+	QString buildURL(QString baseUrl, QString path, QMap<QString, QString> parameter, Encoding encoding);
 };
 
 };
