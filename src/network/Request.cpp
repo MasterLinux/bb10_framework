@@ -17,10 +17,14 @@ Request::~Request() {
 	delete parameter;
 	delete baseUrl;
 	delete path;
+
+	if(urlEncoder != 0) {
+		delete urlEncoder;
+	}
 }
 
 bool Request::start() {
-	QString url = buildURL(*baseUrl, *path, *parameter, ISO_8851_1);
+	QString url = buildURL(*baseUrl, *path, *parameter);
 	QString uri;
 }
 
@@ -36,7 +40,7 @@ void Request::addParameter(QString name, QString value) {
 	parameter->insert(name, value);
 }
 
-QString Request::buildURL(QString baseUrl, QString path, QMap<QString, QString> parameter, Encoding encoding) {
+QString Request::buildURL(QString baseUrl, QString path, QMap<QString, QString> parameter) {
 	QString url;
 
 	//remove backslash at the end of the baseUrl
@@ -60,7 +64,7 @@ QString Request::buildURL(QString baseUrl, QString path, QMap<QString, QString> 
 		while(param.hasNext()) {
 			param.next();
 
-			url = url % param.key() % "=" % encode(encoding, param.value());
+			url = url % param.key() % "=" % urlEncoder->encode(param.value());
 
 			//prepare for the next parameter
 			if(param.hasNext()) {
@@ -72,42 +76,24 @@ QString Request::buildURL(QString baseUrl, QString path, QMap<QString, QString> 
 	return url;
 }
 
-QString Request::encode(Encoding encoding, QString value) {
+void Request::setEncoding(Encoding encoding) {
+//	if(urlEncoder != NULL) {
+//		delete urlEncoder;
+//	}
+
 	switch(encoding) {
-	case UTF8:
+		case UTF8:
 
-		break;
+			break;
 
-	case ISO_8851_1:
-		QByteArray bytes = value.toLatin1(); //TODO implement latin1 encoding
-		QString encoded;
+		case ISO_8851_1:
+			urlEncoder = new Latin1Encoder();
+			break;
 
-		for(int i = 0; i < bytes.length(); i++) {
-			QChar b = bytes.at(i);
-
-			//ignore encoding for unreserved characters
-			if((b >= 0x41 && b <= 0x5a) //A-Z
-					|| (b >= 0x61 && b <= 0x7a) //a-z
-					|| (b >= 0x30 && b <= 0x39) //0-9
-					|| b == 0x7e // ~
-					|| b == 0x5f // _
-					|| b == 0x2d // -
-					|| b == 0x2e // .
-					) {
-				encoded = encoded % QString(b);
-			}
-
-			//encode all reserved and special characters
-			else {
-				encoded = encoded % QString("\%%1").arg(b.unicode(), 0, 16);
-			}
-		}
-
-		value = encoded;
-		break;
+		default:
+			break;
 	}
-
-	return value;
 }
+
 }
 

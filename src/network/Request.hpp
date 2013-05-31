@@ -2,7 +2,7 @@
  * Request.hpp
  *
  *  Created on: 30.05.2013
- *      Author: Christoph
+ *      Author: Christoph Grundmann
  */
 
 #ifndef REQUEST_HPP_
@@ -15,6 +15,8 @@
 #include <QMapIterator>
 #include <QStringBuilder>
 #include <QByteArray>
+#include <Latin1Encoder.hpp>
+#include <../nullptr_t.hpp>
 
 namespace Network {
 
@@ -68,6 +70,7 @@ private:
 	QMap<QString, QString> *parameter;
 	QMap<QString, QString> *header;
 	QMap<QString, QString> *body;
+	IUrlEncoder *urlEncoder;
 
 	/**
 	 * Deserializes the response.
@@ -76,14 +79,8 @@ private:
 	 */
 	void deserialize(QString response, ContentType contentType); //TODO change return type
 
-	/**
-	 * Encodes a value with a specific encoding.
-	 * @param encoding Required encoding
-	 * @param value Value to encode
-	 */
-	QString encode(Encoding encoding, QString value);
 
-	QString buildURL(QString baseUrl, QString path, QMap<QString, QString> parameter, Encoding encoding);
+	QString buildURL(QString baseUrl, QString path, QMap<QString, QString> parameter);
 };
 
 };
