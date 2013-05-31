@@ -11,6 +11,7 @@
 #include <QObject>
 #include <QString>
 #include <QMap>
+#include <QChar>
 #include <QMapIterator>
 #include <QStringBuilder>
 #include <QByteArray>

@@ -79,11 +79,11 @@ QString Request::encode(Encoding encoding, QString value) {
 		break;
 
 	case ISO_8851_1:
-		QByteArray bytes = QString(value).toLatin1(); //TODO implement latin1 encoding
+		QByteArray bytes = value.toLatin1(); //TODO implement latin1 encoding
 		QString encoded;
 
 		for(int i = 0; i < bytes.length(); i++) {
-			char b = bytes.at(i);
+			QChar b = bytes.at(i);
 
 			//ignore encoding for unreserved characters
 			if((b >= 0x41 && b <= 0x5a) //A-Z
@@ -99,7 +99,7 @@ QString Request::encode(Encoding encoding, QString value) {
 
 			//encode all reserved and special characters
 			else {
-				encoded = encoded % QString("\%%1").arg(b, 0, 16);
+				encoded = encoded % QString("\%%1").arg(b.unicode(), 0, 16);
 			}
 		}
 
