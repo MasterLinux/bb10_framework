@@ -10,13 +10,19 @@
 namespace Network {
 
 Request::Request() {
+	networkAccessManager = new QNetworkAccessManager(this);
+
+	connect(
+		networkAccessManager, SIGNAL(finished(QNetworkReply*)),
+		this, SLOT(onFinished(QNetworkReply*))
+	);
+
 	parameter = new QMap<QString, QString>();
 }
 
 Request::~Request() {
+	delete networkAccessManager;
 	delete parameter;
-	delete baseUrl;
-	delete path;
 
 	if(urlEncoder != 0) {
 		delete urlEncoder;
@@ -24,16 +30,41 @@ Request::~Request() {
 }
 
 bool Request::start() {
-	QString url = buildURL(*baseUrl, *path, *parameter);
-	QString uri;
+	QNetworkRequest request = QNetworkRequest();
+	request.setUrl(QUrl(buildURL(baseUrl, path, *parameter)));
+	request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+	//start the request
+	networkAccessManager->get(request);
+
+	return true;
+}
+
+void Request::onFinished(QNetworkReply* reply) {
+	QNetworkReply::NetworkError networkError = reply->error();
+
+	//get content on success
+	if(networkError == QNetworkReply::NoError) {
+		QByteArray bytes = reply->readAll();
+		QString s = QString(bytes);
+		s.toAscii();
+	}
+
+	//handle error
+	else {
+		emit error(-1);
+	}
+
+	//destroy reply
+	reply->deleteLater();
 }
 
 void Request::setBaseUrl(QString baseUrl) {
-	this->baseUrl = new QString(baseUrl);
+	this->baseUrl = baseUrl;
 }
 
 void Request::setPath(QString path) {
-	this->path = new QString(path);
+	this->path = path;
 }
 
 void Request::addParameter(QString name, QString value) {

@@ -15,6 +15,9 @@
 #include <QMapIterator>
 #include <QStringBuilder>
 #include <QByteArray>
+#include <QNetworkRequest>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
 #include <Latin1Encoder.hpp>
 #include <../nullptr_t.hpp>
 
@@ -63,14 +66,22 @@ public:
 	 */
 	void clearCache();
 
+signals:
+	void finished(QString response);
+	void error(int errorCode);
+
+private slots:
+	void onFinished(QNetworkReply* reply);
+
 private:
 	bool isStarted;
-	QString *cacheFilename;
-	QString *baseUrl, *path;
+	QString cacheFilename;
+	QString baseUrl, path;
 	QMap<QString, QString> *parameter;
 	QMap<QString, QString> *header;
 	QMap<QString, QString> *body;
 	IUrlEncoder *urlEncoder;
+	QNetworkAccessManager *networkAccessManager;
 
 	/**
 	 * Deserializes the response.
